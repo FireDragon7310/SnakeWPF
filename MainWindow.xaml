@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:SnakeWPF"
         mc:Ignorable="d"
         Title="Snake" Height="450" Width="800">
-    <Grid Background="DarkGray">
-        <Canvas Name="GameSpace" Background="Gray" HorizontalAlignment="Left" Height="330" Margin="82,0,0,0"  VerticalAlignment="Center" Width="400">
-
-        </Canvas>
+    <Grid Background="DarkGray" d:IsLocked="True">
+        <Canvas Name="GameSpace" Background="Gray" HorizontalAlignment="Left" Height="330" Margin="82,0,0,0"  VerticalAlignment="Center" Width="400"/>
+        <Button Name="Pause" Content="Szünet" Click="Pause_Click" Margin="614,52,64,335" Background="Gray"/>
+        <Button x:Name="Exit" Content="Kilépés" Click="Exit_Click" Margin="614,141,64,246" Background="Gray"/>
+        
     </Grid>
 </Window>

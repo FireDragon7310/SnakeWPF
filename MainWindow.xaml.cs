@@ -44,7 +44,8 @@ namespace SnakeWPF
             {
                 Width = 20,
                 Height = 20,
-                Fill = Brushes.Green
+                Fill = Brushes.Green,
+                            
             };
             GameSpace.Children.Add(snake);
             Canvas.SetLeft(snake, 0);
@@ -171,6 +172,16 @@ namespace SnakeWPF
             MessageBox.Show("Game Over!");
         }
 
+        private void Pause_Click(object sender, RoutedEventArgs e)
+        {
+            TogglePause();
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("Biztosan ki akar lépni?", "Megerősítés", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            if (result == MessageBoxResult.Yes) Application.Current.Shutdown();
+        }
     }
 
     public class Food
@@ -200,6 +211,7 @@ namespace SnakeWPF
                 Height = foodSize,
                 Fill = Brushes.Red
             };
+
             gameCanvas.Children.Add(foodPiece);
             Canvas.SetLeft(foodPiece, left);
             Canvas.SetTop(foodPiece, top);
