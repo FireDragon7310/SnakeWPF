@@ -6,18 +6,20 @@ using System.Windows.Threading;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.Windows.Shapes;
 
 namespace SnakeWPF
 {
     public partial class MainWindow : Window
     {
         private const int SnakeSpeed = 10;
-        private int dx = SnakeSpeed;
-        private int dy = 0;
+        readonly int dx = SnakeSpeed;
+        readonly int dy = 0;
         private DispatcherTimer gameTimer;
         private Food food;
         private Snake snake;
         private bool isPaused = false;
+
 
         public MainWindow()
         {
@@ -78,6 +80,12 @@ namespace SnakeWPF
             }
 
             Point snakeHeadPosition = snake.Move();
+            CheckFoodConsumptionAndGenerateFood(snakeHeadPosition);
+        }
+
+        // Az új CheckFoodConsumptionAndGenerateFood metódus, amely ellenőrzi az étel elfogyasztását és generál egy új ételt
+        private void CheckFoodConsumptionAndGenerateFood(Point snakeHeadPosition)
+        {
             if (food.Eat(snakeHeadPosition))
             {
                 snake.Grow();

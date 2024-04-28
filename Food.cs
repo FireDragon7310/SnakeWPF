@@ -25,7 +25,7 @@ namespace SnakeWPF
             GenerateFood();
         }
 
-        private void GenerateFood()
+        public void GenerateFood()
         {
             double left = random.Next(0, (int)(gameCanvas.ActualWidth / foodSize)) * foodSize;
             double top = random.Next(0, (int)(gameCanvas.ActualHeight / foodSize)) * foodSize;
@@ -62,10 +62,12 @@ namespace SnakeWPF
 
                 // Hozzáadjuk az új szegmentet a kígyóhoz
                 snakeSegments.Add(newSegmentPosition);
+                Console.WriteLine($"Food eaten at: ({foodLeft}, {foodTop})"); // Debug üzenet
                 return true;
             }
             return false;
         }
 
     }
+
 }

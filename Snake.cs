@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -27,6 +28,11 @@ namespace SnakeWPF
             {
                 AddSegment(0, 0);
             }
+        }
+
+        public Point GetHeadPosition()
+        {
+            return segments[0];
         }
 
         public List<Point> GetSegments()
@@ -86,7 +92,7 @@ namespace SnakeWPF
         {
             double headX = segments[0].X;
             double headY = segments[0].Y;
-            return headX < 0 || headX >= maxWidth || headY < 0 || headY >= maxHeight || CheckSelfCollision();
+            return headX < 0 || headX >= maxWidth || headY < 0 || headY >= maxHeight; //||  CheckSelfCollision();
         }
 
         private bool CheckSelfCollision()
