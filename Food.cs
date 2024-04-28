@@ -53,8 +53,15 @@ namespace SnakeWPF
                 gameCanvas.Children.Remove(foodPiece);
                 GenerateFood();
 
-                Point newSegmentPositon = new Point(snakeHeadPosition.X, snakeHeadPosition.Y);
-                snakeSegments.Add(newSegmentPositon);
+                // Az új szegment helyének meghatározása
+                Point lastSegmentPosition = snakeSegments.Last();
+                double deltaX = snakeHeadPosition.X - lastSegmentPosition.X;
+                double deltaY = snakeHeadPosition.Y - lastSegmentPosition.Y;
+
+                Point newSegmentPosition = new Point(snakeHeadPosition.X + deltaX, snakeHeadPosition.Y + deltaY);
+
+                // Hozzáadjuk az új szegmentet a kígyóhoz
+                snakeSegments.Add(newSegmentPosition);
                 return true;
             }
             return false;

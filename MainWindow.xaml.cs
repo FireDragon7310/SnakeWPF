@@ -1,26 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace SnakeWPF
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private const int SnakeSpeed = 10;
@@ -28,7 +16,7 @@ namespace SnakeWPF
         private int dy = 0;
         private DispatcherTimer gameTimer;
         private Food food;
-        readonly List<Point> snakeSegments = new List<Point>();
+        private Snake snake;
         private bool isPaused = false;
 
         public MainWindow()
@@ -40,21 +28,19 @@ namespace SnakeWPF
 
         private void SetupGame()
         {
-            Rectangle snake = new Rectangle
-            {
-                Width = 20,
-                Height = 20,
-                Fill = Brushes.Green,
-                            
-            };
-            GameSpace.Children.Add(snake);
-            Canvas.SetLeft(snake, 0);
-            Canvas.SetTop(snake, 0);
-            snakeSegments.Add(new Point(0, 0));
-
-            food = new Food(GameSpace, snakeSegments);
-
+            snake = new Snake(GameSpace);
+            snake.SetDirection(SnakeSpeed, 0);
             this.KeyDown += MainWindow_KeyDown;
+
+            // Meghívjuk a GenerateFood() metódust egy kis késleltetéssel
+            DispatcherTimer delayTimer = new DispatcherTimer();
+            delayTimer.Interval = TimeSpan.FromMilliseconds(100);
+            delayTimer.Tick += (sender, e) =>
+            {
+                delayTimer.Stop();
+                food = new Food(GameSpace, snake.GetSegments());
+            };
+            delayTimer.Start();
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -62,23 +48,19 @@ namespace SnakeWPF
             switch (e.Key)
             {
                 case Key.A:
-                    dx = -SnakeSpeed;
-                    dy = 0;
+                    snake.SetDirection(-SnakeSpeed, 0);
                     break;
 
                 case Key.D:
-                    dx = SnakeSpeed;
-                    dy = 0;
+                    snake.SetDirection(SnakeSpeed, 0);
                     break;
 
                 case Key.W:
-                    dx = 0;
-                    dy = -SnakeSpeed;
+                    snake.SetDirection(0, -SnakeSpeed);
                     break;
 
                 case Key.S:
-                    dx = 0;
-                    dy = SnakeSpeed;
+                    snake.SetDirection(0, SnakeSpeed);
                     break;
 
                 case Key.Escape:
@@ -89,47 +71,16 @@ namespace SnakeWPF
 
         private void UpdateSnakePosition()
         {
-            Rectangle snakeHead = (Rectangle)GameSpace.Children[0];
-            double headLeft = Canvas.GetLeft(snakeHead);
-            double headTop = Canvas.GetTop(snakeHead);
-            if (headLeft < 0 || headLeft >= GameSpace.ActualWidth || headTop < 0 || headTop >= GameSpace.ActualHeight)
+            if (snake.CheckCollision(GameSpace.ActualWidth, GameSpace.ActualHeight))
             {
                 EndGame();
                 return;
             }
 
-            foreach (var child in GameSpace.Children)
-            {
-                if (child is Rectangle snakeSegment && snakeSegment != snakeHead)
-                {
-                    double segmentLeft = Canvas.GetLeft(snakeSegment);
-                    double segmentTop = Canvas.GetTop(snakeSegment);
-
-                    if (headLeft == segmentLeft && headTop == segmentTop)
-                    {
-                        EndGame();
-                        return;
-                    }
-                }
-            }
-
-            Point snakeHeadPosition = new Point(Canvas.GetLeft(snakeHead), Canvas.GetTop(snakeHead));
+            Point snakeHeadPosition = snake.Move();
             if (food.Eat(snakeHeadPosition))
             {
-                Point snakeTailPosition = snakeSegments.Last();
-                snakeSegments.Add(new Point(snakeTailPosition.X, snakeTailPosition.Y));
-            }
-
-
-            foreach (var child in GameSpace.Children)
-            {
-                if (child is Rectangle snake)
-                {
-                    double left = Canvas.GetLeft(snake) + dx;
-                    double top = Canvas.GetTop(snake) + dy;
-                    Canvas.SetLeft(snake, left);
-                    Canvas.SetTop(snake, top);
-                }
+                snake.Grow();
             }
         }
 
