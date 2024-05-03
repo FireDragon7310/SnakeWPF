@@ -19,6 +19,7 @@ namespace SnakeWPF
         private Food food;
         private Snake snake;
         private bool isPaused = false;
+        private List<Point> foodPoints = new List<Point>();
 
 
         public MainWindow()
@@ -41,6 +42,7 @@ namespace SnakeWPF
             {
                 delayTimer.Stop();
                 food = new Food(GameSpace, snake.GetSegments());
+                foodPoints.Add(new Point(food.GetFoodPosition().X, food.GetFoodPosition().Y));
             };
             delayTimer.Start();
         }
@@ -81,6 +83,13 @@ namespace SnakeWPF
 
             Point snakeHeadPosition = snake.Move();
             CheckFoodConsumptionAndGenerateFood(snakeHeadPosition);
+
+            Console.WriteLine("Snake segments: ");
+            foreach (Point segment in snake.GetSegments())
+            {
+                Console.WriteLine($"Type: {segment.GetType()}, Value: ({segment.X}, {segment.Y})");
+            }
+        
         }
 
         // Az új CheckFoodConsumptionAndGenerateFood metódus, amely ellenőrzi az étel elfogyasztását és generál egy új ételt
@@ -89,6 +98,7 @@ namespace SnakeWPF
             if (food.Eat(snakeHeadPosition))
             {
                 snake.Grow();
+                Console.WriteLine("The snake grew");
             }
         }
 
@@ -128,7 +138,24 @@ namespace SnakeWPF
         private void EndGame()
         {
             gameTimer.Stop();
-            MessageBox.Show("Game Over!");
+            MessageBoxResult result = MessageBox.Show("Game Over! Do you want to play again?", "Game Over", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                RestartGame();
+            }
+            else
+            {
+                Application.Current.Shutdown();
+            }
+        }
+
+        private void RestartGame()
+        {
+            // Reset snake and food
+            snake.Reset();
+            food.Reset();
+            // Start the game loop again
+            gameTimer.Start();
         }
 
         private void Pause_Click(object sender, RoutedEventArgs e)

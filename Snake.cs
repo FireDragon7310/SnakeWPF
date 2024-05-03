@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -77,6 +78,9 @@ namespace SnakeWPF
         {
             Point tail = segments[segments.Count - 1];
             AddSegment(tail.X, tail.Y);
+
+            Console.WriteLine(tail);
+            Console.WriteLine(segments);
         }
 
         private void UpdateSegmentsPosition()
@@ -105,6 +109,22 @@ namespace SnakeWPF
                 }
             }
             return false;
+        }
+
+        public void Reset()
+        {
+            // Clear existing segments
+            segments.Clear();
+
+            // Create snake with initial length and position
+            for (int i = 0; i < InitialLength; i++)
+            {
+                AddSegment(0, 0);
+            }
+
+            // Reset direction
+            dx = 10;
+            dy = 0;
         }
     }
 }

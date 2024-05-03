@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace SnakeWPF
 {
@@ -17,6 +18,7 @@ namespace SnakeWPF
         private readonly int foodSize = 20;
         private Ellipse foodPiece;
         readonly List<Point> snakeSegments;
+        private Point foodPosition;
 
         public Food(Canvas canvas, List<Point> snakeSegments)
         {
@@ -27,20 +29,42 @@ namespace SnakeWPF
 
         public void GenerateFood()
         {
-            double left = random.Next(0, (int)(gameCanvas.ActualWidth / foodSize)) * foodSize;
-            double top = random.Next(0, (int)(gameCanvas.ActualHeight / foodSize)) * foodSize;
-
-
-            foodPiece = new Ellipse
+            bool foodGenerated = false;
+            while (!foodGenerated)
             {
-                Width = foodSize,
-                Height = foodSize,
-                Fill = Brushes.Red
-            };
+                double left = random.Next(0, (int)(gameCanvas.ActualWidth / foodSize)) * foodSize;
+                double top = random.Next(0, (int)(gameCanvas.ActualHeight / foodSize)) * foodSize;
 
-            gameCanvas.Children.Add(foodPiece);
-            Canvas.SetLeft(foodPiece, left);
-            Canvas.SetTop(foodPiece, top);
+                bool overlapsWithSnake = false;
+                foreach (Point segment in snakeSegments)
+                {
+                    if (segment.X == left && segment.Y == top)
+                    {
+                        overlapsWithSnake = true;
+                        break;
+                    }
+                }
+
+                if (!overlapsWithSnake)
+                {
+                    foodPiece = new Ellipse
+                    {
+                        Width = foodSize,
+                        Height = foodSize,
+                        Fill = Brushes.Red
+                    };
+
+                    gameCanvas.Children.Add(foodPiece);
+                    Canvas.SetLeft(foodPiece, left);
+                    Canvas.SetTop(foodPiece, top);
+
+                    foodPosition = new Point(left, top);
+
+                    Console.WriteLine($"Generated food at position ({foodPosition.X}, {foodPosition.Y})");
+
+                    foodGenerated = true;
+                }
+            }
         }
 
         public bool Eat(Point snakeHeadPosition)
@@ -66,6 +90,17 @@ namespace SnakeWPF
                 return true;
             }
             return false;
+        }
+
+        public Point GetFoodPosition()
+        {
+            return foodPosition;
+        }
+
+        public void Reset()
+        {
+            gameCanvas.Children.Remove(foodPiece);
+            GenerateFood();
         }
 
     }
