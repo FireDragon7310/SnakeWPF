@@ -8,15 +8,17 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows;
 using System.Xml.Linq;
+using System.Windows.Threading;
 
 namespace SnakeWPF
 {
     public class Food
     {
+        private bool isFood = true;
         private readonly Canvas gameCanvas;
         readonly Random random = new Random();
         private readonly int foodSize = 20;
-        private Ellipse foodPiece;
+        private readonly Ellipse foodPiece;
         readonly List<Point> snakeSegments;
         private Point foodPosition;
 
@@ -24,7 +26,13 @@ namespace SnakeWPF
         {
             gameCanvas = canvas;
             this.snakeSegments = snakeSegments;
-            GenerateFood();
+            foodPiece = new Ellipse
+            {
+                Width = foodSize,
+                Height = foodSize,
+                Fill = Brushes.Red
+            };
+            GenerateFood(); // Az első étel legenerálása.
         }
 
         public void GenerateFood()
@@ -35,8 +43,9 @@ namespace SnakeWPF
                 double left = random.Next(0, (int)(gameCanvas.ActualWidth / foodSize)) * foodSize;
                 double top = random.Next(0, (int)(gameCanvas.ActualHeight / foodSize)) * foodSize;
 
+                // Ellenőrizzük, hogy az új étel helye nem esik-e egybe a kígyó bármely szegmensének helyével
                 bool overlapsWithSnake = false;
-                foreach (Point segment in snakeSegments)
+                foreach (var segment in snakeSegments)
                 {
                     if (segment.X == left && segment.Y == top)
                     {
@@ -45,14 +54,15 @@ namespace SnakeWPF
                     }
                 }
 
+                // Ellenőrizzük, hogy az új étel helye nem esik-e egybe az előző étel helyével
+                if (foodPosition.X == left && foodPosition.Y == top)
+                {
+                    overlapsWithSnake = true;
+                }
+
                 if (!overlapsWithSnake)
                 {
-                    foodPiece = new Ellipse
-                    {
-                        Width = foodSize,
-                        Height = foodSize,
-                        Fill = Brushes.Red
-                    };
+                    
 
                     gameCanvas.Children.Add(foodPiece);
                     Canvas.SetLeft(foodPiece, left);
@@ -67,25 +77,25 @@ namespace SnakeWPF
             }
         }
 
+
         public bool Eat(Point snakeHeadPosition)
         {
             double foodLeft = Canvas.GetLeft(foodPiece);
             double foodTop = Canvas.GetTop(foodPiece);
 
-            if (snakeHeadPosition.X == foodLeft && snakeHeadPosition.Y == foodTop)
+            if (snakeHeadPosition.X == foodLeft && snakeHeadPosition.Y == foodTop && isFood)
             {
                 gameCanvas.Children.Remove(foodPiece);
-                GenerateFood();
+                DispatcherTimer delayTimer = new DispatcherTimer();
+                delayTimer.Interval = TimeSpan.FromMilliseconds(50);
+                delayTimer.Tick += (sender, e) =>
+                {
+                    delayTimer.Stop();
+                    GenerateFood();
+                };
+                delayTimer.Start();
 
-                // Az új szegment helyének meghatározása
-                Point lastSegmentPosition = snakeSegments.Last();
-                double deltaX = snakeHeadPosition.X - lastSegmentPosition.X;
-                double deltaY = snakeHeadPosition.Y - lastSegmentPosition.Y;
 
-                Point newSegmentPosition = new Point(snakeHeadPosition.X + deltaX, snakeHeadPosition.Y + deltaY);
-
-                // Hozzáadjuk az új szegmentet a kígyóhoz
-                snakeSegments.Add(newSegmentPosition);
                 Console.WriteLine($"Food eaten at: ({foodLeft}, {foodTop})"); // Debug üzenet
                 return true;
             }

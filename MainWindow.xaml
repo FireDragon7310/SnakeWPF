@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnakeWPF"
         mc:Ignorable="d"
-        Title="Snake" Height="450" Width="800">
+        Title="Snake" Height="450" Width="800" ResizeMode="CanResizeWithGrip">
     <Grid Background="DarkGray" d:IsLocked="True">
         <Canvas Name="GameSpace" Background="Gray" HorizontalAlignment="Left" Height="330" Margin="82,0,0,0"  VerticalAlignment="Center" Width="400"/>
         <Button Name="Pause" Content="Szünet" Click="Pause_Click" Margin="614,52,64,335" Background="Gray"/>
         <Button x:Name="Exit" Content="Kilépés" Click="Exit_Click" Margin="614,141,64,246" Background="Gray"/>
-        
+        <TextBox Name="Score" Width="95" Height="50" HorizontalAlignment="Right" Margin="0,100,80,0" Background="Gray" TextAlignment="Center"/>
+
     </Grid>
 </Window>

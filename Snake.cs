@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace SnakeWPF
 {
@@ -12,7 +13,7 @@ namespace SnakeWPF
     {
         private const int InitialLength = 1;
         private const int SegmentSize = 20;
-        private readonly List<Point> segments = new List<Point>();
+        public  List<Point> segments = new List<Point>();
         private readonly Canvas gameSpace;
         private int dx;
         private int dy;
@@ -77,10 +78,18 @@ namespace SnakeWPF
         public void Grow()
         {
             Point tail = segments[segments.Count - 1];
-            AddSegment(tail.X, tail.Y);
+            double newX = tail.X - dx; // Az új szegmens X koordinátája az utolsó szegmens X koordinátájából és a kígyó mozgásának irányával szemben
+            double newY = tail.Y - dy; // Az új szegmens Y koordinátája az utolsó szegmens Y koordinátájából és a kígyó mozgásának irányával szemben
+            AddSegment(newX, newY);
 
-            Console.WriteLine(tail);
-            Console.WriteLine(segments);
+
+            Console.WriteLine("Tail: "+ tail);
+            Console.WriteLine("Segments: "+ segments.Count);
+        }
+
+        public int CountSegments() //Pontszámláló metódus
+        {
+            return segments.Count -1;
         }
 
         private void UpdateSegmentsPosition()
@@ -96,7 +105,7 @@ namespace SnakeWPF
         {
             double headX = segments[0].X;
             double headY = segments[0].Y;
-            return headX < 0 || headX >= maxWidth || headY < 0 || headY >= maxHeight; //||  CheckSelfCollision();
+            return headX < 0 || headX >= maxWidth || headY < 0 || headY >= maxHeight||  CheckSelfCollision();
         }
 
         private bool CheckSelfCollision()
@@ -125,6 +134,8 @@ namespace SnakeWPF
             // Reset direction
             dx = 10;
             dy = 0;
+
+            
         }
     }
 }

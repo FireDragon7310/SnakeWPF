@@ -17,7 +17,8 @@ namespace SnakeWPF
         readonly int dy = 0;
         private DispatcherTimer gameTimer;
         private Food food;
-        private Snake snake;
+        public Snake snake;
+        private ScoreDisplay scoreDisplay;
         private bool isPaused = false;
         private List<Point> foodPoints = new List<Point>();
 
@@ -27,6 +28,7 @@ namespace SnakeWPF
             InitializeComponent();
             SetupGame();
             StartGameLoop();
+            scoreDisplay = new ScoreDisplay(this);
         }
 
         private void SetupGame()
@@ -99,6 +101,7 @@ namespace SnakeWPF
             {
                 snake.Grow();
                 Console.WriteLine("The snake grew");
+                scoreDisplay.UpdateScoreDisplay();
             }
         }
 
@@ -151,6 +154,8 @@ namespace SnakeWPF
 
         private void RestartGame()
         {
+            // Clear the gamespace
+            GameSpace.Children.Clear();
             // Reset snake and food
             snake.Reset();
             food.Reset();
