@@ -12,18 +12,19 @@ namespace SnakeWPF
 {
     public partial class MainWindow : Window
     {
-        private const int SnakeSpeed = 10;
+        private const int SnakeSpeed = 10;  // A kígyó sebességének konstans értéke
+        // A kígyó mozgatásának iránya vízszintesen és függőlegesen
         readonly int dx = SnakeSpeed;
         readonly int dy = 0;
-        private DispatcherTimer gameTimer;
-        private Food food;
-        public Snake snake;
-        private ScoreDisplay scoreDisplay;
-        private bool isPaused = false;
+        private DispatcherTimer gameTimer;  // A játék időzítője
+        private Food food;  // Az étel
+        public Snake snake;  // A kígyó
+        private ScoreDisplay scoreDisplay;  // Pontszám kijelző
+        private bool isPaused = false;  // Játék szüneteltetésének állapota
         private List<Point> foodPoints = new List<Point>();
 
 
-        public MainWindow()
+        public MainWindow()  // A főablak konstruktora
         {
             InitializeComponent();
             SetupGame();
@@ -31,13 +32,14 @@ namespace SnakeWPF
             scoreDisplay = new ScoreDisplay(this);
         }
 
-        private void SetupGame()
+        private void SetupGame() // A játék beállításához szolgáló metódus
         {
+            // Kígyó létrehozása
             snake = new Snake(GameSpace);
             snake.SetDirection(SnakeSpeed, 0);
             this.KeyDown += MainWindow_KeyDown;
 
-            // Meghívjuk a GenerateFood() metódust egy kis késleltetéssel
+            // Étel létrehozása kis késleltetéssel
             DispatcherTimer delayTimer = new DispatcherTimer();
             delayTimer.Interval = TimeSpan.FromMilliseconds(100);
             delayTimer.Tick += (sender, e) =>
@@ -49,10 +51,12 @@ namespace SnakeWPF
             delayTimer.Start();
         }
 
+        // Billentyűleütések kezelése
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
+                // Kígyó irányának beállítása
                 case Key.A:
                     snake.SetDirection(-SnakeSpeed, 0);
                     break;
@@ -69,14 +73,16 @@ namespace SnakeWPF
                     snake.SetDirection(0, SnakeSpeed);
                     break;
 
+                // Játék szüneteltetése
                 case Key.Escape:
                     TogglePause();
                     break;
             }
         }
 
-        private void UpdateSnakePosition()
+        private void UpdateSnakePosition()  // Kígyó pozíciójának frissítése
         {
+            // Ütközés vizsgálat
             if (snake.CheckCollision(GameSpace.ActualWidth, GameSpace.ActualHeight))
             {
                 EndGame();
@@ -89,22 +95,22 @@ namespace SnakeWPF
             Console.WriteLine("Snake segments: ");
             foreach (Point segment in snake.GetSegments())
             {
-                Console.WriteLine($"Type: {segment.GetType()}, Value: ({segment.X}, {segment.Y})");
+                Console.WriteLine($"Type: {segment.GetType()}, Value: ({segment.X}, {segment.Y})");  // Debug üzenet
             }
         
         }
 
-        // Az új CheckFoodConsumptionAndGenerateFood metódus, amely ellenőrzi az étel elfogyasztását és generál egy új ételt
+        // Metódus, mely ellenőrzi az étel elfogyasztását és új ételt generál
         private void CheckFoodConsumptionAndGenerateFood(Point snakeHeadPosition)
         {
             if (food.Eat(snakeHeadPosition))
             {
-                snake.Grow();
-                Console.WriteLine("The snake grew");
-                scoreDisplay.UpdateScoreDisplay();
+                snake.Grow(); 
+                scoreDisplay.UpdateScoreDisplay(); // Pontszám frissítése
             }
         }
 
+        // Játék szüneteltetésére szolgáló metódus
         private void TogglePause()
         {
             if (isPaused)
@@ -119,6 +125,7 @@ namespace SnakeWPF
             }
         }
 
+        // Játék fő ciklusának indítása
         private void StartGameLoop()
         {
             gameTimer = new DispatcherTimer();
@@ -129,6 +136,7 @@ namespace SnakeWPF
             gameTimer.Start();
         }
 
+        // Játék fő ciklusa
         private void GameLoop(object sender, EventArgs e)
         {
             if (!isPaused)
@@ -138,10 +146,11 @@ namespace SnakeWPF
 
         }
 
+        // Játék vége
         private void EndGame()
         {
             gameTimer.Stop();
-            MessageBoxResult result = MessageBox.Show("Game Over! Do you want to play again?", "Game Over", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            MessageBoxResult result = MessageBox.Show("Vége a játéknak! Akarsz újra játszani?", "Vége a játéknak", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 RestartGame();
@@ -152,25 +161,27 @@ namespace SnakeWPF
             }
         }
 
+        // Új játékmenet indítása
         private void RestartGame()
         {
-            // Clear the gamespace
+            // Játéktér törlése
             GameSpace.Children.Clear();
-            // Reset snake and food
+            // A kígyó az étel és a pontszámláló visszaállítása
             snake.Reset();
             food.Reset();
-            // Start the game loop again
+            scoreDisplay.UpdateScoreDisplay();
+            // Játék fő ciklusának újraindítása
             gameTimer.Start();
         }
 
-        private void Pause_Click(object sender, RoutedEventArgs e)
+        private void Pause_Click(object sender, RoutedEventArgs e) // Szünet gombhoz tartozó eseménykezelő
         {
             TogglePause();
         }
 
-        private void Exit_Click(object sender, RoutedEventArgs e)
+        private void Exit_Click(object sender, RoutedEventArgs e) // Kilépés gombhoz tartozó eseménykezelő
         {
-            MessageBoxResult result = MessageBox.Show("Biztosan ki akar lépni?", "Megerősítés", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            MessageBoxResult result = MessageBox.Show("Biztosan ki akar lépni?", "Kilépés", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
             if (result == MessageBoxResult.Yes) Application.Current.Shutdown();
         }
     }

@@ -14,13 +14,13 @@ namespace SnakeWPF
 {
     public class Food
     {
-        private bool isFood = true;
-        private readonly Canvas gameCanvas;
-        readonly Random random = new Random();
-        private readonly int foodSize = 20;
-        private readonly Ellipse foodPiece;
-        readonly List<Point> snakeSegments;
-        private Point foodPosition;
+        private bool isFood = true;  // Jelzi, hogy az étel még jelen van-e a játéktéren
+        private readonly Canvas gameCanvas;  // Játéktér eleme
+        readonly Random random = new Random();  // Random szám generátor
+        private readonly int foodSize = 20;  // Az étel mérete
+        private readonly Ellipse foodPiece;  // Az étel grafikus reprezentációja
+        readonly List<Point> snakeSegments;  // A kígyó szegmenseinek listája
+        private Point foodPosition;  // Az étel pozíciója
 
         public Food(Canvas canvas, List<Point> snakeSegments)
         {
@@ -35,11 +35,13 @@ namespace SnakeWPF
             GenerateFood(); // Az első étel legenerálása.
         }
 
+        // Az étel generálására szolgáló metódus
         public void GenerateFood()
         {
             bool foodGenerated = false;
             while (!foodGenerated)
             {
+                // Az étel helyének véletlenszerű megadása
                 double left = random.Next(0, (int)(gameCanvas.ActualWidth / foodSize)) * foodSize;
                 double top = random.Next(0, (int)(gameCanvas.ActualHeight / foodSize)) * foodSize;
 
@@ -62,22 +64,22 @@ namespace SnakeWPF
 
                 if (!overlapsWithSnake)
                 {
-                    
 
+                    // Az étel hozzáadása a játéktérhez és pozíciójának beállítása
                     gameCanvas.Children.Add(foodPiece);
                     Canvas.SetLeft(foodPiece, left);
                     Canvas.SetTop(foodPiece, top);
 
-                    foodPosition = new Point(left, top);
+                    foodPosition = new Point(left, top);  // Az étel új pozíciójának mentése
 
-                    Console.WriteLine($"Generated food at position ({foodPosition.X}, {foodPosition.Y})");
+                    Console.WriteLine($"Generated food at position ({foodPosition.X}, {foodPosition.Y})");  // Debug üzenet
 
                     foodGenerated = true;
                 }
             }
         }
 
-
+        // Eat metódus az étel elfogyasztásának logikájával
         public bool Eat(Point snakeHeadPosition)
         {
             double foodLeft = Canvas.GetLeft(foodPiece);
@@ -86,6 +88,7 @@ namespace SnakeWPF
             if (snakeHeadPosition.X == foodLeft && snakeHeadPosition.Y == foodTop && isFood)
             {
                 gameCanvas.Children.Remove(foodPiece);
+                // Új étel generálása kis késleltetéssel
                 DispatcherTimer delayTimer = new DispatcherTimer();
                 delayTimer.Interval = TimeSpan.FromMilliseconds(50);
                 delayTimer.Tick += (sender, e) =>
@@ -102,11 +105,13 @@ namespace SnakeWPF
             return false;
         }
 
+        // Az étel pozíciójának lekérése
         public Point GetFoodPosition()
         {
             return foodPosition;
         }
 
+        // Étel újragenerálása
         public void Reset()
         {
             gameCanvas.Children.Remove(foodPiece);
